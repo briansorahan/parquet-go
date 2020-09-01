@@ -4,18 +4,17 @@ import (
 	"context"
 	"encoding/binary"
 	"errors"
+	"io"
 	"reflect"
 	"sync"
-	"io"
 
 	"github.com/apache/thrift/lib/go/thrift"
+	"github.com/xitongsys/parquet-go-source/writerfile"
 	"github.com/xitongsys/parquet-go/common"
 	"github.com/xitongsys/parquet-go/layout"
 	"github.com/xitongsys/parquet-go/marshal"
 	"github.com/xitongsys/parquet-go/parquet"
 	"github.com/xitongsys/parquet-go/schema"
-	"github.com/xitongsys/parquet-go/source"
-	"github.com/xitongsys/parquet-go-source/writerfile"
 )
 
 //ParquetWriter is a writer  parquet file
@@ -23,7 +22,7 @@ type ParquetWriter struct {
 	SchemaHandler *schema.SchemaHandler
 	NP            int64 //parallel number
 	Footer        *parquet.FileMetaData
-	PFile         source.ParquetFile
+	PFile         io.Writer
 
 	PageSize        int64
 	RowGroupSize    int64
@@ -50,7 +49,7 @@ func NewParquetWriterFromWriter(w io.Writer, obj interface{}, np int64) (*Parque
 }
 
 //Create a parquet handler. Obj is a object with tags or JSON schema string.
-func NewParquetWriter(pFile source.ParquetFile, obj interface{}, np int64) (*ParquetWriter, error) {
+func NewParquetWriter(pFile io.Writer, obj interface{}, np int64) (*ParquetWriter, error) {
 	var err error
 
 	res := new(ParquetWriter)

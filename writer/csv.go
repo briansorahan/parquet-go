@@ -3,13 +3,12 @@ package writer
 import (
 	"io"
 
+	"github.com/xitongsys/parquet-go-source/writerfile"
 	"github.com/xitongsys/parquet-go/layout"
 	"github.com/xitongsys/parquet-go/marshal"
-	"github.com/xitongsys/parquet-go/source"
-	"github.com/xitongsys/parquet-go/types"
-	"github.com/xitongsys/parquet-go/schema"
 	"github.com/xitongsys/parquet-go/parquet"
-	"github.com/xitongsys/parquet-go-source/writerfile"
+	"github.com/xitongsys/parquet-go/schema"
+	"github.com/xitongsys/parquet-go/types"
 )
 
 type CSVWriter struct {
@@ -22,7 +21,7 @@ func NewCSVWriterFromWriter(md []string, w io.Writer, np int64) (*CSVWriter, err
 }
 
 //Create CSV writer
-func NewCSVWriter(md []string, pfile source.ParquetFile, np int64) (*CSVWriter, error) {
+func NewCSVWriter(md []string, pfile io.Writer, np int64) (*CSVWriter, error) {
 	res := new(CSVWriter)
 	res.SchemaHandler = schema.NewSchemaHandlerFromMetadata(md)
 	res.PFile = pfile

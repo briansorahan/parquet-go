@@ -3,12 +3,11 @@ package writer
 import (
 	"io"
 
+	"github.com/xitongsys/parquet-go-source/writerfile"
 	"github.com/xitongsys/parquet-go/layout"
 	"github.com/xitongsys/parquet-go/marshal"
-	"github.com/xitongsys/parquet-go/source"
-	"github.com/xitongsys/parquet-go/schema"
 	"github.com/xitongsys/parquet-go/parquet"
-	"github.com/xitongsys/parquet-go-source/writerfile"
+	"github.com/xitongsys/parquet-go/schema"
 )
 
 type JSONWriter struct {
@@ -21,7 +20,7 @@ func NewJSONWriterFromWriter(jsonSchema string, w io.Writer, np int64) (*JSONWri
 }
 
 //Create JSON writer
-func NewJSONWriter(jsonSchema string, pfile source.ParquetFile, np int64) (*JSONWriter, error) {
+func NewJSONWriter(jsonSchema string, pfile io.Writer, np int64) (*JSONWriter, error) {
 	var err error
 	res := new(JSONWriter)
 	res.SchemaHandler, err = schema.NewSchemaHandlerFromJSON(jsonSchema)
