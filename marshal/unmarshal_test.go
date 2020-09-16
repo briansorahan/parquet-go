@@ -51,7 +51,6 @@ func (s Student) String() string {
 
 func TestMarshalUnmarshal(t *testing.T) {
 	schemaHandler, _ := NewSchemaHandlerFromStruct(new(Student))
-	fmt.Println("SchemaHandler Finished")
 
 	math01ID := int64(1)
 	math01 := Class{
@@ -100,16 +99,8 @@ func TestMarshalUnmarshal(t *testing.T) {
 	stus = append(stus, stu01, stu02)
 
 	src, _ := Marshal(stus, schemaHandler)
-	fmt.Println("Marshal Finished")
-
-	for name, table := range *src {
-		fmt.Println(name)
-		fmt.Println("Val: ", table.Values)
-		fmt.Println("RL: ", table.RepetitionLevels)
-		fmt.Println("DL: ", table.DefinitionLevels)
-	}
-
 	dst := make([]Student, 0)
+
 	Unmarshal(src, 0, len(stus), &dst, schemaHandler, "")
 
 	s0 := fmt.Sprint(stus)
