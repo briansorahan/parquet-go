@@ -289,24 +289,7 @@ func GetValueTagMap(src *Tag) *Tag {
 
 //Convert string to a golang variable name
 func StringToVariableName(str string) string {
-	ln := len(str)
-	if ln <= 0 {
-		return str
-	}
-
-	name := ""
-	for i := 0; i < ln; i++ {
-		c := str[i]
-		if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' {
-			name += string(c)
-
-		} else {
-			name += strconv.Itoa(int(c))
-		}
-	}
-
-	name = HeadToUpper(name)
-	return name
+	return HeadToUpper(str)
 }
 
 //Convert the first letter of a string to uppercase
