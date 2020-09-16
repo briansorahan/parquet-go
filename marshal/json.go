@@ -46,10 +46,9 @@ func MarshalJSON(ss []interface{}, schemaHandler *schema.SchemaHandler) (tb *map
 			res[pathStr].Info = schemaHandler.Infos[i]
 		}
 	}
-
-	stack := make([]*Node, 0, 100)
 	for i := 0; i < len(ss); i++ {
-		stack = stack[:0]
+		var stack []*Node
+
 		nodeBuf.Reset()
 
 		node := nodeBuf.GetNode()
