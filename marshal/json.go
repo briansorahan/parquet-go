@@ -1,17 +1,19 @@
 package marshal
 
 import (
-	"encoding/json"
 	"errors"
 	"reflect"
 	"strings"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/xitongsys/parquet-go/common"
 	"github.com/xitongsys/parquet-go/layout"
 	"github.com/xitongsys/parquet-go/parquet"
 	"github.com/xitongsys/parquet-go/schema"
 	"github.com/xitongsys/parquet-go/types"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 //ss is []string
 func MarshalJSON(ss []interface{}, schemaHandler *schema.SchemaHandler) (tb *map[string]*layout.Table, err error) {
