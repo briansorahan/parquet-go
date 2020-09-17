@@ -211,6 +211,14 @@ func marshalStruct(res map[string]*layout.Table, schemaHandler *schema.SchemaHan
 func addToTable(res map[string]*layout.Table, node *Node, key string) {
 	newPathStr := node.PathMap.Children[key].Path
 
+	// Early return if we get an exact match.
+	// This improves performance.
+	if table, ok := res[newPathStr]; ok {
+		table.Values = append(table.Values, nil)
+		table.DefinitionLevels = append(table.DefinitionLevels, node.DL)
+		table.RepetitionLevels = append(table.RepetitionLevels, node.RL)
+		return
+	}
 	for path, table := range res {
 		if strings.HasPrefix(path, newPathStr) && (len(path) == len(newPathStr) || path[len(newPathStr)] == '.') {
 			table.Values = append(table.Values, nil)
