@@ -77,7 +77,7 @@ func TableToDictDataPages(dictRec *DictRecType, table *Table, pageSize int32, bi
 	res := make([]*Page, 0)
 	i := 0
 
-	pT, cT := table.Schema.Type, table.Schema.ConvertedType
+	pT, cT, logT, omitStats := table.Schema.Type, table.Schema.ConvertedType, table.Schema.LogicalType, table.Info.OmitStats
 
 	for i < totalLn {
 		j := i
@@ -88,13 +88,17 @@ func TableToDictDataPages(dictRec *DictRecType, table *Table, pageSize int32, bi
 		var minVal interface{} = table.Values[i]
 		values := make([]int32, 0)
 
-		funcTable := common.FindFuncTable(pT, cT)
+		funcTable := common.FindFuncTable(pT, cT, logT)
 
 		for j < totalLn && size < pageSize {
 			if table.DefinitionLevels[j] == table.MaxDefinitionLevel {
 				numValues++
 				var elSize int32
-				minVal, maxVal, elSize = funcTable.MinMaxSize(minVal, maxVal, table.Values[j])
+				if omitStats {
+					_, _, elSize = funcTable.MinMaxSize(nil, nil, table.Values[j])
+				} else {
+					minVal, maxVal, elSize = funcTable.MinMaxSize(minVal, maxVal, table.Values[j])
+				}
 				size += elSize
 				if idx, ok := dictRec.DictMap[table.Values[j]]; ok {
 					values = append(values, idx)
@@ -124,8 +128,10 @@ func TableToDictDataPages(dictRec *DictRecType, table *Table, pageSize int32, bi
 		//Values in DataTable of a DictPage is nil for optimization.
 		//page.DataTable.Values = values
 
-		page.MaxVal = maxVal
-		page.MinVal = minVal
+		if !omitStats {
+			page.MaxVal = maxVal
+			page.MinVal = minVal
+		}
 		page.Schema = table.Schema
 		page.CompressType = compressType
 		page.Path = table.Path
@@ -180,6 +186,24 @@ func (page *Page) DictDataPageCompress(compressType parquet.CompressionCodec, bi
 	page.Header.DataPageHeader.DefinitionLevelEncoding = parquet.Encoding_RLE
 	page.Header.DataPageHeader.RepetitionLevelEncoding = parquet.Encoding_RLE
 	page.Header.DataPageHeader.Encoding = parquet.Encoding_PLAIN_DICTIONARY
+
+	page.Header.DataPageHeader.Statistics = parquet.NewStatistics()
+	if page.MaxVal != nil {
+		tmpBuf := encoding.WritePlain([]interface{}{page.MaxVal}, *page.Schema.Type)
+		if *page.Schema.Type == parquet.Type_BYTE_ARRAY {
+			tmpBuf = tmpBuf[4:]
+		}
+		page.Header.DataPageHeader.Statistics.Max = tmpBuf
+		page.Header.DataPageHeader.Statistics.MaxValue = tmpBuf
+	}
+	if page.MinVal != nil {
+		tmpBuf := encoding.WritePlain([]interface{}{page.MinVal}, *page.Schema.Type)
+		if *page.Schema.Type == parquet.Type_BYTE_ARRAY {
+			tmpBuf = tmpBuf[4:]
+		}
+		page.Header.DataPageHeader.Statistics.Min = tmpBuf
+		page.Header.DataPageHeader.Statistics.MinValue = tmpBuf
+	}
 
 	ts := thrift.NewTSerializer()
 	ts.Protocol = thrift.NewTCompactProtocolFactory().GetProtocol(ts.Transport)

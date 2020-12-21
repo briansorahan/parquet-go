@@ -266,8 +266,8 @@ func Marshal(srcInterface []interface{}, schemaHandler *schema.SchemaHandler) (t
 			} else {
 				table := res[node.PathMap.Path]
 				schemaIndex := schemaHandler.MapIndex[node.PathMap.Path]
-				sele := schemaHandler.SchemaElements[schemaIndex]
-				table.Values = append(table.Values, types.GoTypeToParquetType(node.Val.Interface(), sele.Type, sele.ConvertedType))
+				schema := schemaHandler.SchemaElements[schemaIndex]
+				table.Values = append(table.Values, types.InterfaceToParquetType(node.Val.Interface(), schema.Type))
 				table.DefinitionLevels = append(table.DefinitionLevels, node.DL)
 				table.RepetitionLevels = append(table.RepetitionLevels, node.RL)
 				continue
