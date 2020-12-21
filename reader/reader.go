@@ -1,6 +1,7 @@
 package reader
 
 import (
+	"context"
 	"encoding/binary"
 	"io"
 	"reflect"
@@ -122,7 +123,7 @@ func (self *ParquetReader) GetFooterSize() (uint32, error) {
 	if _, err = self.PFile.Seek(-8, io.SeekEnd); err != nil {
 		return 0, err
 	}
-	if _, err = self.PFile.Read(buf); err != nil {
+	if _, err = io.ReadFull(self.PFile, buf); err != nil {
 		return 0, err
 	}
 	size := binary.LittleEndian.Uint32(buf)
@@ -141,7 +142,7 @@ func (self *ParquetReader) ReadFooter() error {
 	self.Footer = parquet.NewFileMetaData()
 	pf := thrift.NewTCompactProtocolFactory()
 	protocol := pf.GetProtocol(thrift.NewStreamTransportR(self.PFile))
-	return self.Footer.Read(protocol)
+	return self.Footer.Read(context.TODO(), protocol)
 }
 
 //Skip rows of parquet file
